@@ -1,0 +1,9 @@
+{
+  "name": "codacy-specs",
+  "description": "Spec quality auditing and improvement by Codacy. Helps developers write AI-agent-ready specifications — clear, testable, unambiguous. Works with Jira, Linear, and local spec files.",
+  "author": {
+    "name": "Codacy",
+    "url": "https://codacy.com"
+  },
+  "skills": "./skills/"
+}
