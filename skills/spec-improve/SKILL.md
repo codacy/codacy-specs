@@ -285,6 +285,8 @@ Apply the confirmed spec to its source.
 ```
 updateJiraIssue(issueKey: "PROJ-123", description: "<rewritten spec>")
 ```
+Pass `description` as a plain markdown string — not an ADF object. The MCP tool converts markdown to ADF internally.
+
 Confirm success: "PROJ-123 has been updated in Jira."
 
 ### Linear
