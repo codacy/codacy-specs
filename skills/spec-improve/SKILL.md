@@ -72,15 +72,17 @@ This spec is clear enough to implement. Proceeding.
 
 Identify where the spec lives before doing anything else.
 
-**Jira issue**: The user mentions a key matching `[A-Z]+-[0-9]+` (e.g. `PROJ-123`, `ENG-42`). Fetch with the Atlassian MCP tool `getJiraIssue`.
+**Jira issue**: The user mentions a key matching `[A-Z]+-[0-9]+` (e.g. `PROJ-123`, `ENG-42`, or a full Jira URL). Fetch with the Atlassian MCP tool `getJiraIssue`.
 
 **Linear issue**: The user mentions a Linear issue ID (e.g. `ENG-123`, `ABC-456`, or a full Linear URL). Fetch with the Linear MCP tool for reading issues.
+
+**GitHub issue**: The user mentions a GitHub issue URL (`github.com/owner/repo/issues/123`) or a `#123` reference while a GitHub repo is in context. Extract `owner`, `repo`, and `issue_number`. Fetch with the GitHub MCP tool `get_issue`.
 
 **Local file**: The user provides a file path or says "this spec" while a file path is in context. Read with the `Read` tool.
 
 **Inline spec**: The user pastes spec text directly into the message. Use the pasted content as-is.
 
-If source is ambiguous, ask: "Is this a Jira issue, Linear issue, or a local file? Please share the issue key or file path."
+If source is ambiguous, ask: "Is this a Jira issue, Linear issue, GitHub issue, or a local file? Please share the issue key, URL, or file path."
 
 ---
 
@@ -99,6 +101,16 @@ Use the Linear MCP read tool to fetch the issue by ID or URL.
 Extract: title, description, issue type/label.
 
 If unavailable, fall back gracefully: "Linear MCP is not connected. Please paste the spec content directly."
+
+### GitHub
+```
+get_issue(owner: "org", repo: "repo-name", issue_number: 123)
+```
+Extract: `title`, `body` (description), `labels` (for type detection).
+
+If the user provided a full URL, parse `owner`, `repo`, and `issue_number` from it. If only `#123` was given, infer `owner` and `repo` from the current git remote (`git remote get-url origin`) or ask the user to confirm.
+
+If the tool is unavailable: "GitHub MCP is not connected. Please paste the spec content directly or check your MCP configuration."
 
 ### Local file
 ```
@@ -268,7 +280,7 @@ Here's the rewritten spec. Review it carefully before I apply it.
 [Full rewritten spec here]
 ---
 
-Confirm to apply this to <Jira PROJ-123 / Linear ENG-42 / spec.md>, or say "edit" to request changes.
+Confirm to apply this to <Jira PROJ-123 / Linear ENG-42 / GitHub #123 / spec.md>, or say "edit" to request changes.
 ```
 
 If the user requests changes, apply them and show the updated preview again. Repeat until confirmed.
@@ -292,6 +304,14 @@ Confirm success: "PROJ-123 has been updated in Jira."
 ### Linear
 Use the Linear MCP update tool with the issue ID and new description.
 Confirm success: "The Linear issue has been updated."
+
+### GitHub
+```
+update_issue(owner: "org", repo: "repo-name", issue_number: 123, body: "<rewritten spec>")
+```
+Pass `body` as a plain markdown string. GitHub renders markdown natively — no format conversion needed.
+
+Confirm success: "Issue #123 has been updated in GitHub."
 
 ### Local file
 ```

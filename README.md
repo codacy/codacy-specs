@@ -39,14 +39,15 @@ claude plugin install .
 
 ### 2. (Optional) Connect Jira and/or Linear
 
-This plugin does not bundle its own MCP configuration. If you want to audit and update Jira or Linear issues directly, install the dedicated plugins for those tools — they handle authentication and MCP setup for you:
+This plugin does not bundle its own MCP configuration. If you want to audit and update issues directly in your tracker, install the dedicated plugin or MCP server for that tool:
 
 - **Jira**: Install the [Atlassian Claude Code plugin](https://www.atlassian.com/claude-code)
 - **Linear**: Install the [Linear Claude Code plugin](https://linear.app/claude-code)
+- **GitHub Issues**: Add the [GitHub MCP server](https://github.com/github/github-mcp-server)
 
-Once either plugin is active, `spec-improve` will automatically use it to fetch and update issues.
+Once a tool's MCP is active, `spec-improve` will automatically use it to fetch and update issues.
 
-> **No Jira/Linear?** The skill works without them. Paste any spec directly into the chat, or point it at a local file — it will audit and rewrite without needing any external connection.
+> **No issue tracker connected?** The skill works without any of them. Paste any spec directly into the chat, or point it at a local file — it will audit and rewrite without needing any external connection.
 
 ### 3. (Recommended) Add project context to CLAUDE.md
 
@@ -89,6 +90,8 @@ The `spec-improve` skill activates automatically when you use natural language l
 audit this spec
 improve this Jira ticket PROJ-123
 review this Linear issue ENG-42
+improve GitHub issue #42
+audit github.com/my-org/my-repo/issues/99
 rewrite this story to have better acceptance criteria
 check if this spec is ready for an AI agent
 make this ticket clearer
@@ -230,6 +233,7 @@ codacy-specs/
 - Claude Code CLI (any version supporting plugins)
 - Atlassian MCP (optional) — for Jira integration
 - Linear MCP (optional) — for Linear integration
+- GitHub MCP server (optional) — for GitHub Issues integration
 - Local files — works out of the box, no MCP required
 
 ---
