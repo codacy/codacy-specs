@@ -4,6 +4,15 @@ Use these templates when rewriting a spec in Phase 5 of the `spec-improve` skill
 
 Placeholders in `[BRACKETS]` must be filled from original content or clarification answers. Use `[TO BE DEFINED]` for sections the user skipped.
 
+## Contents
+
+- [Universal Header Template](#universal-header-template)
+- [API Endpoint Template](#api-endpoint-template)
+- [UI Component Template](#ui-component-template)
+- [Backend Feature Template](#backend-feature-template)
+- [Bug Fix Template](#bug-fix-template)
+- [Data Migration Template](#data-migration-template)
+
 ---
 
 ## Universal Header Template

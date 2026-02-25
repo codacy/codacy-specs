@@ -2,6 +2,18 @@
 
 This file defines how to score a specification across universal and type-specific dimensions. Use this during Phase 3 (Audit) of the `spec-improve` skill.
 
+## Contents
+
+- [Scoring Overview](#scoring-overview)
+- [Universal Dimensions](#universal-dimensions-all-spec-types)
+- [API Endpoint Spec](#api-endpoint-spec-additional-weight-40)
+- [UI Component Spec](#ui-component-spec-additional-weight-40)
+- [Backend Feature Spec](#backend-feature-spec-additional-weight-40)
+- [Bug Fix Spec](#bug-fix-spec-additional-weight-40)
+- [Data Migration Spec](#data-migration-spec-additional-weight-40)
+- [INVEST Compliance Check](#invest-compliance-check-bonus--penalty-5-points)
+- [Automatic Disqualifiers](#automatic-disqualifiers-f-grade-regardless-of-score)
+
 ---
 
 ## Scoring Overview

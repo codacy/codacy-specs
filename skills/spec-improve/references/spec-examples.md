@@ -2,6 +2,14 @@
 
 Before/after examples for each spec type. Use these during Phase 5 to calibrate rewriting quality — this is what a good rewrite looks like.
 
+## Contents
+
+- [Example 1: API Endpoint](#example-1-api-endpoint)
+- [Example 2: UI Component](#example-2-ui-component)
+- [Example 3: Bug Fix](#example-3-bug-fix)
+- [Example 4: Backend Feature](#example-4-backend-feature)
+- [Calibration Notes](#calibration-notes)
+
 ---
 
 ## Example 1: API Endpoint
