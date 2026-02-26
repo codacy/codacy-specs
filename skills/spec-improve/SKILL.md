@@ -28,7 +28,7 @@ Use this mode when the skill is triggered as a guardrail before starting impleme
 
 ### Quick Check Flow
 
-1. Fetch the spec using the same source detection logic as Full Audit Mode.
+1. Fetch the spec and parent (if any) using the same source detection and parent fetch logic as Full Audit Mode.
 2. Classify the spec type.
 3. Score only the **critical universal dimensions**: problem statement, acceptance criteria, error handling, testability. Skip type-specific dimensions to keep it fast.
 4. Output the compact quick check report (see format below).
@@ -46,11 +46,14 @@ Top gaps:
   • [Gap 1 — e.g. "missing acceptance criteria"]
   • [Gap 2 — e.g. "no error handling defined"]
   • [Gap 3 — e.g. "request schema absent"]   ← omit if fewer than 3 gaps
+  • parent inconsistency: <brief description>   ← include if a parent↔child contradiction was found
 
 What would you like to do?
   [1] Review and improve — I'll ask clarifying questions and rewrite the spec before we proceed
   [2] Continue anyway — skip the review and start implementation
 ```
+
+Gaps that are explicitly covered by the parent ticket are **not listed** in "Top gaps".
 
 If the grade is **A or B**, skip the options entirely and output:
 
@@ -96,11 +99,15 @@ Extract: `summary` (title), `description` (body), `issuetype` (Story/Bug/Task/Ep
 
 If the tool is unavailable or returns an error, inform the user: "Atlassian MCP is not connected. Please paste the spec content directly or check your MCP configuration."
 
+**Parent fetch**: After the main fetch, inspect the response for a `parent` field. If `parent.key` is present and the current issue is not itself an Epic, fetch `atlassian:getJiraIssue(issueKey: parent.key)`. Extract the parent's title and description. If the fetch fails or the current issue has no parent, continue without parent context (non-blocking).
+
 ### Linear
 Use `linear:<read_tool_name>` to fetch the issue by ID or URL. Verify the exact tool name from your Linear MCP server configuration.
 Extract: title, description, issue type/label.
 
 If unavailable, fall back gracefully: "Linear MCP is not connected. Please paste the spec content directly."
+
+**Parent fetch**: After the main fetch, inspect the response for a `parent` field. If present, fetch the parent using `linear:<read_tool_name>` with the parent's ID. Extract title and description. If the fetch fails, continue without parent context (non-blocking).
 
 ### GitHub
 ```
@@ -112,11 +119,31 @@ If the user provided a full URL, parse `owner`, `repo`, and `issue_number` from 
 
 If the tool is unavailable: "GitHub MCP is not connected. Please paste the spec content directly or check your MCP configuration."
 
+**Parent fetch**: GitHub issues have no native parent field in the standard API. Skip silently.
+
 ### Local file
 ```
 Read(file_path: "<path>")
 ```
 If the file does not exist, ask the user to confirm the path.
+
+**Parent fetch**: No parent concept for local files. Skip.
+
+### Inline spec
+
+**Parent fetch**: No parent concept for inline specs. Skip.
+
+---
+
+## Phase 1.5: Fetch Parent Context
+
+This phase summarises what was established in the platform-specific parent fetch steps above and defines "parent context" for all subsequent phases.
+
+**Parent context** is a record `{ id, title, description }` sourced from the parent ticket (Epic, Feature, or parent issue).
+
+- If no parent was found, or the parent fetch failed, parent context is **empty**. All subsequent steps that reference parent context are no-ops — do not flag the absence as an error.
+- Parent fetches are **opportunistic**: failure always means "proceed without it", never block or surface an error to the user.
+- When parent context is non-empty, carry it forward through Phase 3 (Audit), the Quality Report, and Phase 5 (Rewrite).
 
 ---
 
@@ -170,6 +197,21 @@ If no instruction files are found, proceed without project context.
 
 Only flag HTTP status codes and Content-Type when: the correct code is ambiguous (e.g. 200 vs 201 for a POST), a non-JSON response type is possible, or it is an error response. Error response codes and bodies should always be specified regardless of whether they are "standard".
 
+**3. Parent context** — If parent context is non-empty:
+
+  a. **Inherited coverage**: For each audit dimension where the child has a gap (score < 7), check whether the parent's description explicitly addresses it. If it does, raise that dimension's score to 7–8/10 and annotate:
+  ```
+  ✅  Error handling            8/10
+      ↳ covered by parent PROJ-100 — error strategy defined in epic
+  ```
+  Use score 7 when the parent covers the dimension generally; 8 when the parent is specific. Never award 9–10 from parent coverage alone — the child should eventually own its content.
+
+  b. **Inconsistency detection**: Flag explicit contradictions between parent and child. Check for:
+  - Tech stack or runtime version conflicts
+  - Scope boundary violations (child claims something the parent marks out of scope)
+  - Data model conflicts
+  - Business rule conflicts
+
 ---
 
 Score the spec against the quality rubric. Apply the **universal dimensions** to every spec. Then apply the **type-specific dimensions** for the detected type.
@@ -210,8 +252,13 @@ Output the report in this exact format:
   ⚠️  Error response codes      2/10
       ↳ status codes listed, response bodies absent
 ───────────────────────────────────────────────────────────────
+  PARENT CONTEXT: PROJ-100 (Payment Gateway Epic)
+
+  ℹ️  Covered by parent: error handling, auth requirements
+  ⚠️  Inconsistency: child targets Node 18, parent specifies Node 20
+───────────────────────────────────────────────────────────────
   Agent Readiness: NOT READY
-  An AI agent working from this spec will make 4+ wrong 
+  An AI agent working from this spec will make 4+ wrong
   assumptions and produce unverifiable code.
 ───────────────────────────────────────────────────────────────
 ```
@@ -221,6 +268,7 @@ Output the report in this exact format:
 - Status icons: always 2 spaces after every icon — `✅  `, `❌  `, `⚠️  ` — same for all, no exceptions.
 - Annotations: every dimension scoring below 9/10 gets an annotation on the next line, indented with 6 spaces + `↳ <short explanation>` — never inline after the score.
 - Omit the annotation line for dimensions scoring 9–10.
+- **PARENT CONTEXT block**: Insert between the type-specific dimensions and the Agent Readiness summary. Omit the entire block if no parent context exists or if neither coverage nor inconsistencies apply. Include one `ℹ️` line listing all covered dimensions (omit if none). Include one `⚠️` line per inconsistency (omit if none).
 
 **Grade thresholds**: A = 85–100, B = 70–84, C = 50–69, D = 30–49, F = 0–29.
 
@@ -270,6 +318,11 @@ Rewrite the full spec incorporating:
 2. Answers collected during clarification
 3. Structural improvements using templates from `references/spec-templates.md`
 4. `[TO BE DEFINED]` placeholders for skipped sections
+5. Parent context (if available):
+   - Add or enrich the Background / Context section with a reference to the parent issue (ID + title)
+   - Pull in scope constraints, architectural decisions, or business context from the parent that apply specifically to this ticket
+   - Mark any unresolved inconsistency as: `[INCONSISTENCY — reconcile with <parent-ID>: <description>]`
+   - Do not silently resolve inconsistencies
 
 Present the rewritten spec as a clean, formatted document — not a diff. Specs are prose, not code.
 
