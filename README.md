@@ -26,15 +26,16 @@ Add this plugin to your Claude Code project:
 
 ```bash
 # From your project root, or globally
-claude plugin install https://github.com/codacy/codacy-specs
+claude plugin marketplace add codacy/codacy-specs
+claude plugin install codacy-specs
 ```
 
 Or clone and install locally:
 
 ```bash
 git clone https://github.com/codacy/codacy-specs
-cd codacy-specs
-claude plugin install .
+claude plugin marketplace add ./codacy-specs
+claude plugin install codacy-specs
 ```
 
 ### 2. (Optional) Connect Jira and/or Linear
@@ -247,7 +248,3 @@ Issues and pull requests welcome at [github.com/codacy/codacy-specs](https://git
 ## License
 
 MIT License. Free for personal and commercial use.
-
----
-
-*Built by [Codacy](https://codacy.com) — code quality for every team.*

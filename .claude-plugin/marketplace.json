@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "codacy-specs",
+  "description": "Codacy plugins for AI-agent-ready development workflows",
+  "owner": {
+    "name": "Codacy",
+    "url": "https://codacy.com"
+  },
+  "plugins": [
+    {
+      "name": "codacy-specs",
+      "description": "Spec quality auditing and improvement by Codacy. Helps developers write AI-agent-ready specifications — clear, testable, unambiguous. Works with Jira, Linear, and local spec files.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/codacy/codacy-specs.git"
+      },
+      "author": {
+        "name": "Codacy",
+        "url": "https://codacy.com"
+      },
+      "category": "productivity",
+      "homepage": "https://github.com/codacy/codacy-specs"
+    }
+  ]
+}
